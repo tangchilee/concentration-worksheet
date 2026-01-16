@@ -21,8 +21,8 @@
         body { background-color: #fff7ed; -webkit-tap-highlight-color: transparent; }
         @media print { .no-print { display: none !important; } }
         button { outline: none; }
-        .fade-in { animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -176,8 +176,7 @@
 
             return (
                 <div className="min-h-screen p-2 sm:p-4 md:p-8 selection:bg-orange-200 relative">
-                    
-                    {/* 結果提示視窗 (不影響按鈕與頁面結構) */}
+                    {/* 結果提示視窗 */}
                     {checkResult && (
                         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm no-print" onClick={() => setCheckResult(null)}>
                             <div className="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl border-4 border-[#f9ebbe] text-center fade-in" onClick={e => e.stopPropagation()}>
@@ -190,14 +189,13 @@
 
                     <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-xl overflow-hidden border-[6px] sm:border-[12px] border-[#f9ebbe] flex flex-col no-print pb-12">
                         <div className="text-center pt-8 pb-0 px-4">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-[#ff8c42] rounded-full text-xs font-black mb-3"><Icons.Sparkles className="w-3.5 h-3.5" /> 教學輔助工具</div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-[#ff8c42] rounded-full text-xs font-black tracking-widest mb-3"><Icons.Sparkles className="w-3.5 h-3.5" /> 教學輔助工具</div>
                             <h1 className="text-3xl sm:text-5xl font-[900] text-orange-950 tracking-[0.15em] mb-3 leading-tight">專注力學習單</h1>
                             <p className="text-[#433422]/80 font-normal text-[10px] sm:text-[14px] mb-4">為小朋友打造最溫馨、專業的視覺搜尋與空間對應練習空間</p>
                         </div>
 
                         <div className="p-3 sm:p-10 pt-4 flex-grow flex flex-col items-center">
                             <div className="w-full max-w-[800px] flex flex-col space-y-12">
-                                {/* 設定區 */}
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6">
                                     <div className="flex flex-col items-center">
                                         <span className="text-[10px] sm:text-sm font-black text-orange-800/80 mb-2 uppercase">練習難度</span>
@@ -279,18 +277,9 @@
                                     </div>
                                 </div>
 
-                                {/* --- 完美還原按鈕區：寬度切齊、圓角、陰影、佈局 100% 相同 --- */}
                                 <div className="grid grid-cols-2 gap-4 sm:gap-8 mt-16 no-print w-full max-w-[800px] mx-auto px-0">
-                                    <button 
-                                        onClick={checkAnswers} 
-                                        className="w-full px-4 py-3.5 sm:py-4 bg-[#ff8c42] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#d35400] active:translate-y-0.5 transition-all"
-                                    >
-                                        檢查答案
-                                    </button>
-                                    <button 
-                                        onClick={handleExportImage} 
-                                        className="w-full px-4 py-3.5 sm:py-4 bg-[#433422] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#1a140d] active:translate-y-0.5 transition-all flex items-center justify-center gap-1 sm:gap-3"
-                                    >
+                                    <button onClick={checkAnswers} className="w-full px-4 py-3.5 sm:py-4 bg-[#ff8c42] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#d35400] active:translate-y-0.5 transition-all">檢查答案</button>
+                                    <button onClick={handleExportImage} className="w-full px-4 py-3.5 sm:py-4 bg-[#433422] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#1a140d] active:translate-y-0.5 transition-all flex items-center justify-center gap-1 sm:gap-3">
                                         {isExporting ? <Icons.RefreshCw className="w-4 h-4 animate-spin" /> : <Icons.ImageIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
                                         {isExporting ? '生成中' : '輸出圖片'}
                                     </button>
@@ -299,33 +288,41 @@
                         </div>
                     </div>
 
-                    {/* --- 核心：虛擬 A4 導出版 (修正數字垂直置中與 1:1 佈局) --- */}
-                    <div ref={exportContainerRef} style={{ position: 'fixed', left: '-9999px', top: '0', width: '800px', height: '1132px', backgroundColor: 'white', padding: '10px 40px 10px 40px', border: '12px solid #f9ebbe', display: 'none', boxSizing: 'border-box' }}>
+                    {/* --- 核心：虛擬 A4 導出版 (徹底修正反灰與數字位置) --- */}
+                    <div ref={exportContainerRef} style={{ position: 'fixed', left: '-9999px', top: '0', width: '800px', height: '1132px', backgroundColor: 'white', padding: '10px 25px 10px 25px', border: '12px solid #f9ebbe', display: 'none', boxSizing: 'border-box' }}>
                         <div className="w-full h-full flex flex-col" style={{ boxSizing: 'border-box', position: 'relative' }}>
                             <div className="text-center pt-8">
                                 <h1 style={{ fontSize: '56px', fontWeight: '900', color: '#433422', letterSpacing: '0.2em', margin: '0 0 35px 0', lineHeight: '1' }}>專注力學習單</h1>
                                 <p style={{ fontSize: '18px', color: '#433422', opacity: 0.8, margin: '0 0 45px 0' }}>為小朋友打造最溫馨、專業的視覺搜尋與空間對應練習空間</p>
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '70px', padding: '0 5px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', fontSize: '28px', fontWeight: '900', color: '#433422' }}>班級：<div style={{ width: '220px', borderBottom: '3px solid #433422', height: '32px' }}></div></div>
-                                <div style={{ display: 'flex', alignItems: 'center', fontSize: '28px', fontWeight: '900', color: '#433422' }}>姓名：<div style={{ width: '220px', borderBottom: '3px solid #433422', height: '32px' }}></div></div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginBottom: '70px', padding: '0 5px' }}>
+                                <div style={{ display: 'flex', alignItems: 'flex-end', fontSize: '28px', fontWeight: '900', color: '#433422' }}>
+                                    <span style={{ paddingBottom: '2px' }}>班級：</span>
+                                    <div style={{ width: '220px', borderBottom: '3px solid #433422' }}></div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'flex-end', fontSize: '28px', fontWeight: '900', color: '#433422' }}>
+                                    <span style={{ paddingBottom: '2px' }}>姓名：</span>
+                                    <div style={{ width: '220px', borderBottom: '3px solid #433422' }}></div>
+                                </div>
                             </div>
+
                             <div className="flex-grow flex flex-col" style={{ gap: '40px' }}>
-                                <div className="bg-white pt-16 pb-12 px-8 rounded-[2rem] border-2 border-[#f9ebbe] relative">
-                                    <div style={{ position: 'absolute', top: '-24px', left: '40px', backgroundColor: '#ff8c42', color: 'white', width: '240px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', gap: '8px' }}>
+                                <div className="bg-white pt-12 pb-8 px-8 rounded-[2rem] border-2 border-[#f9ebbe] relative">
+                                    <div style={{ position: 'absolute', top: '-24px', left: '40px', backgroundColor: '#ff8c42', color: 'white', width: '240px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <Icons.Key className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>找出正確密碼</span>
                                     </div>
-                                    <div className={`grid ${mode === '3x3' ? 'grid-cols-5 gap-12' : 'grid-cols-8 gap-x-4 gap-y-10'}`}>
+                                    <div className={`grid ${mode === '3x3' ? 'grid-cols-5 gap-12' : 'grid-cols-8 gap-x-[11px] gap-y-1'}`}>
                                         {targetIcons.map((icon) => (
                                             mode === '3x3' ? (
-                                                <div key={icon.id} className="flex flex-col items-center gap-6">
+                                                <div key={icon.id} className="flex flex-col items-center gap-1">
                                                     <div className="flex items-center justify-center" style={{ width: '70px', height: '80px' }}><icon.component className="w-full h-full" color={icon.hex} /></div>
                                                     <div style={{ width: '105px', height: '105px', borderRadius: '14px', border: '4px solid #fff7ed', backgroundColor: '#ffffff' }}></div>
                                                 </div>
                                             ) : (
                                                 <React.Fragment key={icon.id}>
                                                     <div className="flex items-center justify-center" style={{ width: '85px', height: '85px' }}><icon.component className="w-full h-full" color={icon.hex} /></div>
-                                                    <div style={{ width: '85px', height: '85px', borderRadius: '12px', border: '4px solid #fff7ed', backgroundColor: '#ffffff' }}></div>
+                                                    <div style={{ width: '85px', height: '85px', borderRadius: '12px', border: '4px solid #fff7ed', backgroundColor: '#ffffff', flexShrink: 0 }}></div>
                                                 </React.Fragment>
                                             )
                                         ))}
@@ -336,10 +333,11 @@
                                         <div style={{ backgroundColor: '#ff8c42', color: 'white', width: '260px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px', gap: '8px' }}>
                                             <Icons.Palette className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>圖案分布圖</span>
                                         </div>
-                                        <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square shadow-inner">
+                                        {/* LOCK AREA: 無陰影容器，徹底消除灰色角落 */}
+                                        <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square">
                                             <div className={`grid h-full w-full gap-2 ${mode === '3x3' ? 'grid-cols-3' : 'grid-cols-4'}`}>
                                                 {leftGrid.map((item, idx) => (
-                                                    <div key={idx} className="aspect-square bg-white rounded-2xl flex items-center justify-center">{item && <item.component size="75%" color={item.hex} />}</div>
+                                                    <div key={idx} className="aspect-square bg-white rounded-2xl flex items-center justify-center border border-[#fffcf0]">{item && <item.component size="75%" color={item.hex} />}</div>
                                                 ))}
                                             </div>
                                         </div>
@@ -348,12 +346,12 @@
                                         <div style={{ backgroundColor: '#ff8c42', color: 'white', width: '260px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px', gap: '8px' }}>
                                             <Icons.Hash className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>數字密碼圖</span>
                                         </div>
-                                        <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square shadow-inner">
+                                        {/* LOCK AREA: 無陰影容器，並強制數字 translateY(-38%) 往上移動達成視覺置中 */}
+                                        <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square">
                                             <div className={`grid h-full w-full gap-2 ${mode === '3x3' ? 'grid-cols-3' : 'grid-cols-4'}`}>
                                                 {rightGrid.map((num, idx) => (
-                                                    <div key={idx} className="aspect-square bg-white rounded-2xl flex items-center justify-center font-black text-[#433422]" style={{ fontSize: mode === '3x3' ? '64px' : '48px' }}>
-                                                        {/* 修正：將數字垂直位移改為 +5% 並確保 flex 置中，達成視覺完美置中 */}
-                                                        <span style={{ transform: 'translateY(5%)', lineHeight: '1' }}>{num}</span>
+                                                    <div key={idx} className="aspect-square bg-white rounded-2xl flex items-center justify-center font-black text-[#433422]" style={{ fontSize: mode === '3x3' ? '64px' : '48px', border: '1px solid #fed7aa' }}>
+                                                        <span style={{ transform: 'translateY(-38%)', lineHeight: '1' }}>{num}</span>
                                                     </div>
                                                 ))}
                                             </div>
