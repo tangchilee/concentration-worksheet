@@ -22,7 +22,12 @@
         @media print { .no-print { display: none !important; } }
         button { outline: none; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* 捲軸美化，確保不超出框線 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #fef3c7; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ff8c42; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -31,34 +36,36 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- SVG 圖標元件 ---
-        const IconWrapper = ({ children, color, className }) => (
-            <svg viewBox="0 0 24 24" className={className} fill="currentColor" style={{ color }}>{children}</svg>
+        // --- SVG 圖標組件 ---
+        const IconWrapper = ({ children, color, className, style, fill = "currentColor", strokeWidth = 0 }) => (
+            <svg viewBox="0 0 24 24" className={className} style={{ color, ...style }} fill={fill} stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">{children}</svg>
         );
 
         const Icons = {
-            Triangle: (p) => <IconWrapper {...p}><path d="M12 2L22 21H2L12 2Z"/></IconWrapper>,
-            Square: (p) => <IconWrapper {...p}><rect x="3" y="3" width="18" height="18" rx="1"/></IconWrapper>,
-            Hexagon: (p) => <IconWrapper {...p}><path d="M12 2l8.66 5v10L12 22l-8.66-5V7L12 2z"/></IconWrapper>,
-            Circle: (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="10"/></IconWrapper>,
-            Diamond: (p) => <IconWrapper {...p}><path d="M12 2l9 10-9 10-9-10 9-10z"/></IconWrapper>,
-            Pentagon: (p) => <IconWrapper {...p}><path d="M12 2l9 6.5L17.5 19h-11L3 8.5z"/></IconWrapper>,
-            Cross: (p) => <IconWrapper {...p}><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></IconWrapper>,
-            Arrow: (p) => <IconWrapper {...p}><path d="M12 2L22 12L12 22V17H2V7H12V2Z"/></IconWrapper>,
-            Lightning: (p) => <IconWrapper {...p}><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></IconWrapper>,
-            Shield: (p) => <IconWrapper {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></IconWrapper>,
-            Star: (p) => <IconWrapper {...p}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></IconWrapper>,
+            Star: (p) => <IconWrapper {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></IconWrapper>,
             Moon: (p) => <IconWrapper {...p}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></IconWrapper>,
-            Sun: (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="5"/><path stroke="currentColor" strokeWidth="2" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></IconWrapper>,
-            Cloud: (p) => <IconWrapper {...p}><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.4-1.8-4.3-4.2-4.5a7 7 0 1 0-13.3 2c-1.5.3-2.5 1.5-2.5 3 0 1.7 1.3 3 3 3h12.5z"/></IconWrapper>,
             Heart: (p) => <IconWrapper {...p}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></IconWrapper>,
-            Key: (p) => <IconWrapper {...p}><path stroke="currentColor" strokeWidth="2" d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zM15 8l2 2m-5 5l7-7"/></IconWrapper>,
-            Palette: (p) => <IconWrapper {...p}><path stroke="currentColor" strokeWidth="2" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16c3.3 0 6-2.7 6-6 0-4.4-4.5-8-10-8z"/></IconWrapper>,
-            Hash: (p) => <IconWrapper {...p}><path stroke="currentColor" strokeWidth="2" d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></IconWrapper>,
-            ImageIcon: (p) => <IconWrapper {...p}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path stroke="currentColor" strokeWidth="2" d="M21 15l-5-5L5 21"/></IconWrapper>,
-            RotateCcw: (p) => <IconWrapper {...p}><path stroke="currentColor" strokeWidth="2" d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path stroke="currentColor" strokeWidth="2" d="M3 3v5h5"/></IconWrapper>,
-            Sparkles: (p) => <IconWrapper {...p}><path stroke="currentColor" strokeWidth="2" d="M12 3l1.91 5.82L21 12l-7.09 3.18L12 21l-1.91-5.82L3 12l7.09-3.18L12 3z"/></IconWrapper>,
-            RefreshCw: (p) => <IconWrapper {...p}><path stroke="currentColor" strokeWidth="2" d="M21 2v6h-6"/><path stroke="currentColor" strokeWidth="2" d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path stroke="currentColor" strokeWidth="2" d="M3 22v-6h6"/><path stroke="currentColor" strokeWidth="2" d="M21 12a9 9 0 0 1-15 6.7L3 16"/></IconWrapper>
+            Cloud: (p) => <IconWrapper {...p}><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.4-1.8-4.3-4.2-4.5a7 7 0 1 0-13.3 2c-1.5.3-2.5 1.5-2.5 3 0 1.7 1.3 3 3 3h12.5z"/></IconWrapper>,
+            Ghost: (p) => <IconWrapper {...p}><path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></IconWrapper>,
+            Flag: (p) => <IconWrapper {...p}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></IconWrapper>,
+            Fish: (p) => <IconWrapper {...p}><path d="M7 15l-4-4 4-4M10 11.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM22 11c-2-4-5-6-10-6s-8 3-8 6 3 6 8 6 8-2 10-6z"/></IconWrapper>,
+            Plane: (p) => <IconWrapper {...p}><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></IconWrapper>,
+            Gift: (p) => <IconWrapper {...p}><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></IconWrapper>,
+            Apple: (p) => <IconWrapper {...p}><path d="M12 22c4.97 0 9-3.03 9-7.14 0-.3-.02-.6-.05-.89A4 4 0 0 0 17 8c-2.1 0-3.1 1.1-4.1 2.2C11.9 9.1 10.9 8 8.8 8A4 4 0 0 0 4 13.97c-.03.29-.05.59-.05.89C3.95 18.97 7.98 22 12.95 22z"/><path d="M12 8c0-3.5 2-5 2-5"/></IconWrapper>,
+            Rocket: (p) => <IconWrapper {...p}><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.5-1 1-4c2 1 3 2 4 4z"/><path d="M15 15v5c-1 .5-4 1-4 1s1-1 2-4z"/><line x1="15" y1="9" x2="15.01" y2="9"/></IconWrapper>,
+            Home: (p) => <IconWrapper {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></IconWrapper>,
+            Sparkles: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><path d="M12 3l1.91 5.82L21 12l-7.09 3.18L12 21l-1.91-5.82L3 12l7.09-3.18L12 3z"/></IconWrapper>,
+            RotateCcw: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></IconWrapper>,
+            Key: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zM15 8l2 2m-5 5l7-7"/></IconWrapper>,
+            Palette: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16c3.3 0 6-2.7 6-6 0-4.4-4.5-8-10-8z"/></IconWrapper>,
+            Hash: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></IconWrapper>,
+            ImageIcon: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></IconWrapper>,
+            RefreshCw: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></IconWrapper>,
+            Info: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></IconWrapper>,
+            X: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></IconWrapper>,
+            Circle: (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="10"/></IconWrapper>,
+            Triangle: (p) => <IconWrapper {...p}><path d="M12 2L22 20H2L12 2Z"/></IconWrapper>,
+            Square: (p) => <IconWrapper {...p}><rect x="3" y="3" width="18" height="18" rx="2"/></IconWrapper>,
         };
 
         const App = () => {
@@ -71,27 +78,28 @@
             const [activePickerId, setActivePickerId] = useState(null);
             const [isExporting, setIsExporting] = useState(false);
             const [checkResult, setCheckResult] = useState(null);
+            const [showGuide, setShowGuide] = useState(false);
             const exportContainerRef = useRef(null);
             const pickerRef = useRef(null);
 
             const themeColors = { orange: '#ff8c42', amber: '#f59e0b', caramel: '#d35400', deepCocoa: '#433422', cardBg: '#fff9e6' };
 
             const iconPool = [
-                { id: 'triangle', component: Icons.Triangle, hex: themeColors.orange },
-                { id: 'square', component: Icons.Square, hex: themeColors.amber },
-                { id: 'hexagon', component: Icons.Hexagon, hex: themeColors.caramel },
+                { id: 'star', component: Icons.Star, hex: themeColors.orange },
+                { id: 'moon', component: Icons.Moon, hex: themeColors.amber },
+                { id: 'heart', component: Icons.Heart, hex: themeColors.caramel },
+                { id: 'cloud', component: Icons.Cloud, hex: themeColors.orange },
+                { id: 'ghost', component: Icons.Ghost, hex: themeColors.amber },
+                { id: 'flag', component: Icons.Flag, hex: themeColors.caramel },
+                { id: 'fish', component: Icons.Fish, hex: themeColors.orange },
+                { id: 'plane', component: Icons.Plane, hex: themeColors.amber },
+                { id: 'gift', component: Icons.Gift, hex: themeColors.caramel },
+                { id: 'apple', component: Icons.Apple, hex: themeColors.orange },
+                { id: 'rocket', component: Icons.Rocket, hex: themeColors.amber },
+                { id: 'home', component: Icons.Home, hex: themeColors.caramel },
                 { id: 'circle', component: Icons.Circle, hex: themeColors.orange },
-                { id: 'diamond', component: Icons.Diamond, hex: themeColors.amber },
-                { id: 'pentagon', component: Icons.Pentagon, hex: themeColors.caramel },
-                { id: 'cross', component: Icons.Cross, hex: themeColors.orange },
-                { id: 'arrow', component: Icons.Arrow, hex: themeColors.amber },
-                { id: 'lightning', component: Icons.Lightning, hex: themeColors.caramel },
-                { id: 'shield', component: Icons.Shield, hex: themeColors.orange },
-                { id: 'star', component: Icons.Star, hex: themeColors.amber },
-                { id: 'moon', component: Icons.Moon, hex: themeColors.caramel },
-                { id: 'sun', component: Icons.Sun, hex: themeColors.orange },
-                { id: 'cloud', component: Icons.Cloud, hex: themeColors.amber },
-                { id: 'heart', component: Icons.Heart, hex: themeColors.caramel }
+                { id: 'triangle', component: Icons.Triangle, hex: themeColors.amber },
+                { id: 'square', component: Icons.Square, hex: themeColors.caramel }
             ];
 
             useEffect(() => {
@@ -176,6 +184,49 @@
 
             return (
                 <div className="min-h-screen p-2 sm:p-4 md:p-8 selection:bg-orange-200 relative">
+                    
+                    {/* 使用說明彈窗 (規範化字體大小) */}
+                    {showGuide && (
+                        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md no-print" onClick={() => setShowGuide(false)}>
+                            <div className="bg-white rounded-[2.5rem] max-w-lg w-full shadow-2xl border-4 border-[#f9ebbe] fade-in relative flex flex-col max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+                                <div className="p-6 sm:p-8 pb-4 flex justify-between items-center">
+                                    <h2 className="text-xl font-black text-orange-950 flex items-center gap-2">🧩 專注力學習單：快速指南</h2>
+                                    <button onClick={() => setShowGuide(false)} className="text-orange-900/40 hover:text-[#ff8c42] transition-colors"><Icons.X className="w-7 h-7" /></button>
+                                </div>
+                                <div className="flex-grow overflow-y-auto px-6 sm:px-10 pb-10 custom-scrollbar">
+                                    <div className="space-y-6 text-[#433422] text-base leading-relaxed">
+                                        <p className="font-bold text-base">這是一款專為 4-8 歲孩童設計的「圖格對應」訓練工具，用來提升孩子的專注力與視覺空間感。</p>
+                                        <section>
+                                            <h3 className="text-base font-black text-[#ff8c42] mb-2 flex items-center gap-2 underline underline-offset-4 decoration-2">💡 為什麼要玩這個？</h3>
+                                            <ul className="space-y-1 font-bold text-left">
+                                                <li className="flex gap-2"><span>•</span> <span>訓練專注力：孩子必須在雜亂中搜尋目標，提升視覺搜尋效率。</span></li>
+                                                <li className="flex gap-2"><span>•</span> <span>建立空間感：練習左右圖表間的座標對應邏輯，強化空間位置感。</span></li>
+                                            </ul>
+                                        </section>
+                                        <section>
+                                            <h3 className="text-base font-black text-[#ff8c42] mb-2 flex items-center gap-2 underline underline-offset-4 decoration-2">🕹️ 遊戲四部曲</h3>
+                                            <ul className="space-y-1 font-bold text-left">
+                                                <li className="flex gap-2"><span>1.</span> <span>看目標：觀察最上方需要找出哪些圖案。</span></li>
+                                                <li className="flex gap-2"><span>2.</span> <span>找位置：在左邊「圖案分布圖」裡找出該圖案在哪裡。</span></li>
+                                                <li className="flex gap-2"><span>3.</span> <span>對數字：看右邊「數字密碼圖」相同位置對應的數字。</span></li>
+                                                <li className="flex gap-2"><span>4.</span> <span>填答案：點擊上方空格，填入找到的數字密碼。</span></li>
+                                            </ul>
+                                        </section>
+                                        <section>
+                                            <h3 className="text-base font-black text-[#ff8c42] mb-2 flex items-center gap-2 underline underline-offset-4 decoration-2">🛠️ 教師與家長控制項</h3>
+                                            <ul className="space-y-1 font-bold text-left">
+                                                <li className="flex gap-2"><span>•</span> <span>難度切換：3x3 (入門) / 4x4 (進階挑戰)。</span></li>
+                                                <li className="flex gap-2"><span>•</span> <span>密碼設定：順序 (適合初學) / 隨機 (高難度辨識)。</span></li>
+                                                <li className="flex gap-2"><span>•</span> <span>換下一題：一鍵生成全新題目，內容永遠不重複。</span></li>
+                                                <li className="flex gap-2"><span>•</span> <span>輸出圖片：下載符合 A4 比例的學習單圖片，方便直接列印。</span></li>
+                                            </ul>
+                                        </section>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* 結果提示視窗 */}
                     {checkResult && (
                         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm no-print" onClick={() => setCheckResult(null)}>
@@ -187,15 +238,25 @@
                         </div>
                     )}
 
-                    <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-xl overflow-hidden border-[6px] sm:border-[12px] border-[#f9ebbe] flex flex-col no-print pb-12">
-                        <div className="text-center pt-8 pb-0 px-4">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-[#ff8c42] rounded-full text-xs font-black tracking-widest mb-3"><Icons.Sparkles className="w-3.5 h-3.5" /> 教學輔助工具</div>
+                    <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-xl overflow-hidden border-[6px] sm:border-[12px] border-[#f9ebbe] flex flex-col no-print pb-12 relative">
+                        {/* 右上角 Info 按鈕 */}
+                        <button 
+                            onClick={() => setShowGuide(true)}
+                            className="absolute top-4 right-4 sm:top-8 sm:right-8 bg-[#fff9e6] text-[#ff8c42] p-2.5 sm:p-3 rounded-full border-2 border-[#f9ebbe] hover:bg-[#ff8c42] hover:text-white transition-all shadow-sm group active:scale-95 z-20"
+                            title="使用說明"
+                        >
+                            <Icons.Info className="w-6 h-6 sm:w-8 sm:h-8" />
+                        </button>
+
+                        <div className="text-center pt-10 pb-0 px-4">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-[#ff8c42] rounded-full text-xs font-black tracking-widest mb-3 shadow-sm"><Icons.Sparkles className="w-3.5 h-3.5" /> 教學輔助工具</div>
                             <h1 className="text-3xl sm:text-5xl font-[900] text-orange-950 tracking-[0.15em] mb-3 leading-tight">專注力學習單</h1>
                             <p className="text-[#433422]/80 font-normal text-[10px] sm:text-[14px] mb-4">為小朋友打造最溫馨、專業的視覺搜尋與空間對應練習空間</p>
                         </div>
 
                         <div className="p-3 sm:p-10 pt-4 flex-grow flex flex-col items-center">
                             <div className="w-full max-w-[800px] flex flex-col space-y-12">
+                                {/* 設定區 */}
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6">
                                     <div className="flex flex-col items-center">
                                         <span className="text-[10px] sm:text-sm font-black text-orange-800/80 mb-2 uppercase">練習難度</span>
@@ -277,9 +338,10 @@
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 sm:gap-8 mt-16 no-print w-full max-w-[800px] mx-auto px-0">
-                                    <button onClick={checkAnswers} className="w-full px-4 py-3.5 sm:py-4 bg-[#ff8c42] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#d35400] active:translate-y-0.5 transition-all">檢查答案</button>
-                                    <button onClick={handleExportImage} className="w-full px-4 py-3.5 sm:py-4 bg-[#433422] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#1a140d] active:translate-y-0.5 transition-all flex items-center justify-center gap-1 sm:gap-3">
+                                {/* 下方按鈕區 */}
+                                <div className="grid grid-cols-2 gap-4 sm:gap-8 no-print w-full max-w-[800px] mx-auto px-0 mt-8">
+                                    <button onClick={checkAnswers} className="w-full py-3.5 sm:py-4 bg-[#ff8c42] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#d35400] active:translate-y-0.5 transition-all">檢查答案</button>
+                                    <button onClick={handleExportImage} className="w-full py-3.5 sm:py-4 bg-[#433422] text-white rounded-[1.5rem] sm:rounded-[2rem] font-black text-sm sm:text-lg shadow-[0_4px_0_#1a140d] active:translate-y-0.5 transition-all flex items-center justify-center gap-1 sm:gap-3">
                                         {isExporting ? <Icons.RefreshCw className="w-4 h-4 animate-spin" /> : <Icons.ImageIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
                                         {isExporting ? '生成中' : '輸出圖片'}
                                     </button>
@@ -288,14 +350,14 @@
                         </div>
                     </div>
 
-                    {/* --- 核心：虛擬 A4 導出版 (徹底修正反灰與數字位置) --- */}
+                    {/* --- 核心：虛擬 A4 導出版 (LOCK AREA: 鎖死設定) --- */}
                     <div ref={exportContainerRef} style={{ position: 'fixed', left: '-9999px', top: '0', width: '800px', height: '1132px', backgroundColor: 'white', padding: '10px 25px 10px 25px', border: '12px solid #f9ebbe', display: 'none', boxSizing: 'border-box' }}>
                         <div className="w-full h-full flex flex-col" style={{ boxSizing: 'border-box', position: 'relative' }}>
                             <div className="text-center pt-8">
                                 <h1 style={{ fontSize: '56px', fontWeight: '900', color: '#433422', letterSpacing: '0.2em', margin: '0 0 35px 0', lineHeight: '1' }}>專注力學習單</h1>
                                 <p style={{ fontSize: '18px', color: '#433422', opacity: 0.8, margin: '0 0 45px 0' }}>為小朋友打造最溫馨、專業的視覺搜尋與空間對應練習空間</p>
                             </div>
-                            
+                            {/* LOCK: 班級姓名底線對齊 */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginBottom: '70px', padding: '0 5px' }}>
                                 <div style={{ display: 'flex', alignItems: 'flex-end', fontSize: '28px', fontWeight: '900', color: '#433422' }}>
                                     <span style={{ paddingBottom: '2px' }}>班級：</span>
@@ -306,7 +368,6 @@
                                     <div style={{ width: '220px', borderBottom: '3px solid #433422' }}></div>
                                 </div>
                             </div>
-
                             <div className="flex-grow flex flex-col" style={{ gap: '40px' }}>
                                 <div className="bg-white pt-12 pb-8 px-8 rounded-[2rem] border-2 border-[#f9ebbe] relative">
                                     <div style={{ position: 'absolute', top: '-24px', left: '40px', backgroundColor: '#ff8c42', color: 'white', width: '240px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -333,7 +394,6 @@
                                         <div style={{ backgroundColor: '#ff8c42', color: 'white', width: '260px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px', gap: '8px' }}>
                                             <Icons.Palette className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>圖案分布圖</span>
                                         </div>
-                                        {/* LOCK AREA: 無陰影容器，徹底消除灰色角落 */}
                                         <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square">
                                             <div className={`grid h-full w-full gap-2 ${mode === '3x3' ? 'grid-cols-3' : 'grid-cols-4'}`}>
                                                 {leftGrid.map((item, idx) => (
@@ -346,11 +406,11 @@
                                         <div style={{ backgroundColor: '#ff8c42', color: 'white', width: '260px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px', gap: '8px' }}>
                                             <Icons.Hash className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>數字密碼圖</span>
                                         </div>
-                                        {/* LOCK AREA: 無陰影容器，並強制數字 translateY(-38%) 往上移動達成視覺置中 */}
                                         <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square">
                                             <div className={`grid h-full w-full gap-2 ${mode === '3x3' ? 'grid-cols-3' : 'grid-cols-4'}`}>
                                                 {rightGrid.map((num, idx) => (
                                                     <div key={idx} className="aspect-square bg-white rounded-2xl flex items-center justify-center font-black text-[#433422]" style={{ fontSize: mode === '3x3' ? '64px' : '48px', border: '1px solid #fed7aa' }}>
+                                                        {/* LOCK: 數字置中位移 -38% */}
                                                         <span style={{ transform: 'translateY(-38%)', lineHeight: '1' }}>{num}</span>
                                                     </div>
                                                 ))}
