@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幼兒專注力學習單 - 專業強化版</title>
+    <title>數字躲貓貓 - 幼兒專注力訓練工具</title>
     <!-- 載入 Noto Serif TC 字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <!-- 載入 Tailwind CSS -->
@@ -66,7 +66,6 @@
             Circle: (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="10"/></IconWrapper>,
             Triangle: (p) => <IconWrapper {...p}><path d="M12 2L22 20H2L12 2Z"/></IconWrapper>,
             Square: (p) => <IconWrapper {...p}><rect x="3" y="3" width="18" height="18" rx="2"/></IconWrapper>,
-            Trash2: (p) => <IconWrapper {...p} fill="none" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></IconWrapper>
         };
 
         const App = () => {
@@ -161,7 +160,7 @@
                     const canvas = await html2canvas(exportArea, { scale: 3, useCORS: true, backgroundColor: '#ffffff', width: 800, height: 1132 });
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL("image/png", 1.0);
-                    link.download = `幼兒專注力練習單_${mode}.png`;
+                    link.download = `數字躲貓貓_${mode}.png`;
                     link.click();
                 } catch (err) { console.error(err); }
                 finally { exportArea.style.display = 'none'; setIsExporting(false); }
@@ -186,27 +185,27 @@
             return (
                 <div className="min-h-screen p-2 sm:p-4 md:p-8 selection:bg-orange-200 relative">
                     
-                    {/* 使用說明彈窗 */}
+                    {/* 使用說明彈窗 (規範化字體大小與條列式) */}
                     {showGuide && (
                         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md no-print" onClick={() => setShowGuide(false)}>
                             <div className="bg-white rounded-[2.5rem] max-w-lg w-full shadow-2xl border-4 border-[#f9ebbe] fade-in relative flex flex-col max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-                                <div className="p-6 sm:p-8 pb-4 flex justify-between items-center">
-                                    <h2 className="text-xl font-black text-orange-950 flex items-center gap-2">🧩 專注力學習單：快速指南</h2>
+                                <div className="p-6 sm:p-8 pb-4 flex justify-between items-center text-left">
+                                    <h2 className="text-xl font-black text-orange-950 flex items-center gap-2">🧩 數字躲貓貓：快速指南</h2>
                                     <button onClick={() => setShowGuide(false)} className="text-orange-900/40 hover:text-[#ff8c42] transition-colors"><Icons.X className="w-7 h-7" /></button>
                                 </div>
                                 <div className="flex-grow overflow-y-auto px-6 sm:px-10 pb-10 custom-scrollbar">
                                     <div className="space-y-6 text-[#433422] text-base leading-relaxed text-left">
-                                        <p className="font-bold">這是一款專為 4-8 歲孩童設計的「圖格對應」訓練工具，用來提升孩子的專注力與視覺空間感。</p>
+                                        <p className="font-bold text-base">這是一款專為 4-8 歲孩童設計的「圖格對應」訓練工具，用來提升孩子的專注力與視覺空間感。</p>
                                         <section>
                                             <h3 className="text-base font-black text-[#ff8c42] mb-2 flex items-center gap-2 underline underline-offset-4 decoration-2">💡 為什麼要玩這個？</h3>
-                                            <ul className="space-y-1 font-bold">
+                                            <ul className="space-y-1 font-bold text-left">
                                                 <li className="flex gap-2"><span>•</span> <span>訓練專注力：孩子必須在雜亂中搜尋目標，提升視覺搜尋效率。</span></li>
                                                 <li className="flex gap-2"><span>•</span> <span>建立空間感：練習左右圖表間的座標對應邏輯，強化空間位置感。</span></li>
                                             </ul>
                                         </section>
                                         <section>
                                             <h3 className="text-base font-black text-[#ff8c42] mb-2 flex items-center gap-2 underline underline-offset-4 decoration-2">🕹️ 遊戲四部曲</h3>
-                                            <ul className="space-y-1 font-bold">
+                                            <ul className="space-y-1 font-bold text-left">
                                                 <li className="flex gap-2"><span>1.</span> <span>看目標：觀察最上方需要找出哪些圖案。</span></li>
                                                 <li className="flex gap-2"><span>2.</span> <span>找位置：在左邊「圖案分布圖」裡找出該圖案在哪裡。</span></li>
                                                 <li className="flex gap-2"><span>3.</span> <span>對數字：看右邊「數字密碼圖」相同位置對應的數字。</span></li>
@@ -215,7 +214,7 @@
                                         </section>
                                         <section>
                                             <h3 className="text-base font-black text-[#ff8c42] mb-2 flex items-center gap-2 underline underline-offset-4 decoration-2">🛠️ 教師與家長控制項</h3>
-                                            <ul className="space-y-1 font-bold">
+                                            <ul className="space-y-1 font-bold text-left">
                                                 <li className="flex gap-2"><span>•</span> <span>難度切換：3x3 (入門) / 4x4 (進階挑戰)。</span></li>
                                                 <li className="flex gap-2"><span>•</span> <span>密碼設定：順序 (適合初學) / 隨機 (高難度辨識)。</span></li>
                                                 <li className="flex gap-2"><span>•</span> <span>換下一題：一鍵生成全新題目，內容永遠不重複。</span></li>
@@ -240,7 +239,7 @@
                     )}
 
                     <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-xl overflow-hidden border-[6px] sm:border-[12px] border-[#f9ebbe] flex flex-col no-print pb-12 relative">
-                        {/* 右上角 Info 按鈕 */}
+                        {/* 右上角 Info 按鈕 (純圖標) */}
                         <button 
                             onClick={() => setShowGuide(true)}
                             className="absolute top-4 right-4 sm:top-8 sm:right-8 bg-[#fff9e6] text-[#ff8c42] p-2.5 sm:p-3 rounded-full border-2 border-[#f9ebbe] hover:bg-[#ff8c42] hover:text-white transition-all shadow-sm group active:scale-95 z-20"
@@ -251,12 +250,13 @@
 
                         <div className="text-center pt-10 pb-0 px-4">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-[#ff8c42] rounded-full text-xs font-black tracking-widest mb-3 shadow-sm"><Icons.Sparkles className="w-3.5 h-3.5" /> 教學輔助工具</div>
-                            <h1 className="text-3xl sm:text-5xl font-[900] text-orange-950 tracking-[0.15em] mb-3 leading-tight">專注力學習單</h1>
+                            <h1 className="text-3xl sm:text-5xl font-[900] text-orange-950 tracking-[0.15em] mb-3 leading-tight uppercase px-4">數字躲貓貓</h1>
                             <p className="text-[#433422]/80 font-normal text-[10px] sm:text-[14px] mb-4">為小朋友打造最溫馨、專業的視覺搜尋與空間對應練習空間</p>
                         </div>
 
                         <div className="p-3 sm:p-10 pt-4 flex-grow flex flex-col items-center">
                             <div className="w-full max-w-[800px] flex flex-col space-y-12">
+                                {/* 設定區 */}
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6">
                                     <div className="flex flex-col items-center">
                                         <span className="text-[10px] sm:text-sm font-black text-orange-800/80 mb-2 uppercase">練習難度</span>
@@ -295,7 +295,6 @@
                                                                     <button key={n} onClick={() => { setUserAnswers({...userAnswers, [icon.id]: n}); setActivePickerId(null); }} className="aspect-square flex items-center justify-center text-xs sm:text-xl font-black bg-[#fff9e6] hover:bg-[#ff8c42] hover:text-white rounded-lg transition-colors">{n}</button>
                                                                 ))}
                                                             </div>
-                                                            {/* 小鍵盤操作區：移除分隔橫線，更換按鈕文字 */}
                                                             <div className="grid grid-cols-2 gap-2">
                                                                 <button onClick={() => { setUserAnswers({...userAnswers, [icon.id]: null}); setActivePickerId(null); }} className="flex items-center justify-center py-1.5 bg-orange-100 text-orange-700 rounded-lg text-[10px] sm:text-xs font-black hover:bg-orange-200 transition-colors">清除</button>
                                                                 <button onClick={() => setActivePickerId(null)} className="flex items-center justify-center py-1.5 bg-gray-100 text-gray-700 rounded-lg text-[10px] sm:text-xs font-black hover:bg-gray-200 transition-colors">關閉</button>
@@ -315,7 +314,6 @@
                                                                         <button key={n} onClick={() => { setUserAnswers({...userAnswers, [icon.id]: n}); setActivePickerId(null); }} className="aspect-square flex items-center justify-center text-xs sm:text-xl font-black bg-[#fff9e6] hover:bg-[#ff8c42] hover:text-white rounded-lg transition-colors">{n}</button>
                                                                     ))}
                                                                 </div>
-                                                                {/* 小鍵盤操作區：移除分隔橫線，更換按鈕文字 */}
                                                                 <div className="grid grid-cols-2 gap-2">
                                                                     <button onClick={() => { setUserAnswers({...userAnswers, [icon.id]: null}); setActivePickerId(null); }} className="flex items-center justify-center py-1.5 bg-orange-100 text-orange-700 rounded-lg text-[10px] sm:text-xs font-black hover:bg-orange-200 transition-colors">清除</button>
                                                                     <button onClick={() => setActivePickerId(null)} className="flex items-center justify-center py-1.5 bg-gray-100 text-gray-700 rounded-lg text-[10px] sm:text-xs font-black hover:bg-gray-200 transition-colors">關閉</button>
@@ -368,11 +366,11 @@
                     <div ref={exportContainerRef} style={{ position: 'fixed', left: '-9999px', top: '0', width: '800px', height: '1132px', backgroundColor: 'white', padding: '10px 25px 10px 25px', border: '12px solid #f9ebbe', display: 'none', boxSizing: 'border-box' }}>
                         <div className="w-full h-full flex flex-col" style={{ boxSizing: 'border-box', position: 'relative' }}>
                             <div className="text-center pt-8">
-                                <h1 style={{ fontSize: '56px', fontWeight: '900', color: '#433422', letterSpacing: '0.2em', margin: '0 0 35px 0', lineHeight: '1' }}>專注力學習單</h1>
+                                <h1 style={{ fontSize: '56px', fontWeight: '900', color: '#433422', letterSpacing: '0.2em', margin: '0 0 35px 0', lineHeight: '1' }}>數字躲貓貓</h1>
                                 <p style={{ fontSize: '18px', color: '#433422', opacity: 0.8, margin: '0 0 45px 0' }}>為小朋友打造最溫馨、專業的視覺搜尋與空間對應練習空間</p>
                             </div>
                             
-                            {/* LOCK: 班級姓名底線對齊 */}
+                            {/* LOCK: 班級姓名底線對齊 (flex-end + padding-bottom) */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginBottom: '70px', padding: '0 5px' }}>
                                 <div style={{ display: 'flex', alignItems: 'flex-end', fontSize: '28px', fontWeight: '900', color: '#433422' }}>
                                     <span style={{ paddingBottom: '2px' }}>班級：</span>
@@ -389,6 +387,7 @@
                                     <div style={{ position: 'absolute', top: '-24px', left: '40px', backgroundColor: '#ff8c42', color: 'white', width: '240px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                         <Icons.Key className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>找出正確密碼</span>
                                     </div>
+                                    {/* LOCK: 4x4 等距 11px */}
                                     <div className={`grid ${mode === '3x3' ? 'grid-cols-5 gap-12' : 'grid-cols-8 gap-x-[11px] gap-y-1'}`}>
                                         {targetIcons.map((icon) => (
                                             mode === '3x3' ? (
@@ -410,6 +409,7 @@
                                         <div style={{ backgroundColor: '#ff8c42', color: 'white', width: '260px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px', gap: '8px' }}>
                                             <Icons.Palette className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>圖案分布圖</span>
                                         </div>
+                                        {/* LOCK: 無陰影容器區 */}
                                         <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square">
                                             <div className={`grid h-full w-full gap-2 ${mode === '3x3' ? 'grid-cols-3' : 'grid-cols-4'}`}>
                                                 {leftGrid.map((item, idx) => (
@@ -422,11 +422,11 @@
                                         <div style={{ backgroundColor: '#ff8c42', color: 'white', width: '260px', height: '48px', borderRadius: '999px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '25px', gap: '8px' }}>
                                             <Icons.Hash className="w-5 h-5" /><span style={{ fontWeight: '900', fontSize: '20px', transform: 'translateY(-9px)' }}>數字密碼圖</span>
                                         </div>
+                                        {/* LOCK: 無陰影容器，並強制數字 translateY(-38%) 往上移動達成視覺置中 */}
                                         <div className="grid gap-2 bg-[#fff9e6] p-4 rounded-[2rem] border-2 border-[#f9ebbe] w-full aspect-square">
                                             <div className={`grid h-full w-full gap-2 ${mode === '3x3' ? 'grid-cols-3' : 'grid-cols-4'}`}>
                                                 {rightGrid.map((num, idx) => (
                                                     <div key={idx} className="aspect-square bg-white rounded-2xl flex items-center justify-center font-black text-[#433422]" style={{ fontSize: mode === '3x3' ? '64px' : '48px', border: '1px solid #fed7aa' }}>
-                                                        {/* LOCK: 數字置中位移 -38% */}
                                                         <span style={{ transform: 'translateY(-38%)', lineHeight: '1' }}>{num}</span>
                                                     </div>
                                                 ))}
